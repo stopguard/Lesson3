@@ -5,25 +5,38 @@
 Сможете ли вы добавить еще один аргумент — флаг, разрешающий или запрещающий повторы слов в шутках
 (когда каждое слово можно использовать только в одной шутке)? Сможете ли вы сделать аргументы именованными?
 """
-from random import choices
-from random import sample
+from random import choices  # подтягиваем функцию вывода случайных элементов списка
+from random import sample   # подтягиваем функцию вывода случайных уникальных элементов списка
 
+# добавляем списки слов для шуток
 nouns = ["автомобиль", "лес", "огонь", "город", "дом"]
 adverbs = ["сегодня", "вчера", "завтра", "позавчера", "ночью"]
 adjectives = ["веселый", "яркий", "зеленый", "утопичный", "мягкий"]
-uniq_func = {True: choices, False: sample}
+
+# создаём функциональный словарь - избавляемся от лишнего блока if
+uniq_func = {True: sample, False: choices}
 
 
-def get_jokes(n=1, uniq=False):
-    answ = []
-    if n > min([len(nouns), len(adverbs), len(adjectives)]):
-        return 'Много шуток тоже вредно!'
-    _nouns = uniq_func[uniq](nouns, n)
-    _adverbs = uniq_func[uniq](adverbs, n)
-    _adjectives = uniq_func[uniq](adjectives, n)
-    for noun, adverb, adjective in zip(_nouns, _adverbs, _adjectives):
-        answ.append(' '.join(noun, adverb, adjective))
-    return answ
+def get_jokes(n, uniq):
+    """Возвращает список из n шуток. при непустом аргументе uniq слова в шутках не повторяются"""
+    answ = []                                                           # объявляем список шуток
+    if n > min([len(nouns), len(adverbs), len(adjectives)]):            # если n > минимального списка слов
+        return 'Много шуток тоже вредно!'                                   # выходим из функции
+    _nouns = uniq_func[uniq](nouns, k=n)                                # выбираем слова из первого списка
+    _adverbs = uniq_func[uniq](adverbs, k=n)                            # выбираем слова из второго списка
+    _adjectives = uniq_func[uniq](adjectives, k=n)                      # выбираем слова из третьего списка
+    for noun, adverb, adjective in zip(_nouns, _adverbs, _adjectives):  # проходим по спискам выбранных слов
+        answ.append(' '.join([noun, adverb, adjective]))                    # собирая их в шутки, а шутки в список
+    return answ                                                         # возвращаем список шуток
 
 
-num_of_jokes = input('Введите желаемое количество шуток: ')
+jokes = []                              # объявляем список шуток
+count_of_jokes = input('Вам сколько шуток отсыпать?: ')     # принимаем от пользователя желаемое количество шуток
+if count_of_jokes.isdigit() and int(count_of_jokes):        # ЕСЛИ принято ненулевое числовое значение
+    uniq_only = input('Введите что-нибудь, если нужны только уникальные шутки: ')  # запрашиваем флаг уникальности
+    # вызываем функцию сборки шуток с преобразованием аргументов:
+    jokes = get_jokes(n=int(count_of_jokes), uniq=bool(uniq_only))
+else:  # ИНАЧЕ отказываемся шутить:
+    jokes = 'Что-то не до шуток...'
+
+print(jokes)    # выводим полученные шутки
